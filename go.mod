@@ -1,6 +1,6 @@
 module yescrypt_crack
 
-go 1.24.3
+go 1.25.2
 
 require (
 	github.com/openwall/yescrypt-go v1.0.0
