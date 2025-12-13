@@ -1,4 +1,4 @@
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=cyclone-github&repo=yescrypt_crack&theme=gruvbox)](https://github.com/cyclone-github/yescrypt_crack/)
+[![Readme Card](https://github-readme-stats-fast.vercel.app/api/pin/?username=cyclone-github&repo=yescrypt_crack&theme=gruvbox)](https://github.com/cyclone-github/yescrypt_crack/)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/cyclone-github/yescrypt_crack)](https://goreportcard.com/report/github.com/cyclone-github/yescrypt_crack)
 [![GitHub issues](https://img.shields.io/github/issues/cyclone-github/yescrypt_crack.svg)](https://github.com/cyclone-github/yescrypt_crack/issues)
@@ -65,6 +65,15 @@ cat wordlist | ./yescrypt_crack.bin -h yescrypt.txt
 
 ### Changelog:
 - https://github.com/cyclone-github/yescrypt_crack/blob/main/CHANGELOG.md
+
+### Install latest release:
+```
+go install github.com/cyclone-github/yescrypt_crack@latest
+```
+### Install from latest source code (bleeding edge):
+```
+go install github.com/cyclone-github/yescrypt_crack@main
+```
 
 ### Compile from source:
 - If you want the latest features, compiling from source is the best option since the release version may run several revisions behind the source code.
