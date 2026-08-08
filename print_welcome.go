@@ -8,7 +8,7 @@ import (
 
 // version func
 func versionFunc() {
-	fmt.Fprintln(os.Stderr, "Cyclone's Yescrypt Cracker v0.2.0; 2025-03-06\nhttps://github.com/cyclone-github/yescrypt_crack\n ")
+	fmt.Fprintln(os.Stderr, "Cyclone's Yescrypt Cracker v0.3.1; 2026-08-08\nhttps://github.com/cyclone-github/yescrypt_crack\n ")
 }
 
 // help func
@@ -25,13 +25,13 @@ func helpFunc() {
 -version (version info)
 -help (usage instructions)
 
-./yescrypt_cracker.bin -h {yescrypt_hash_file} -w {wordlist} -o {output} -t {cpu threads} -s {print status every nth sec}
+./yescrypt_crack.bin -h {yescrypt_hash_file} -w {wordlist} -o {output} -t {cpu threads} -s {print status every nth sec}
 
-./yescrypt_cracker.bin -h hashes.txt -w wordlist.txt -o cracked.txt -t 16 -s 10
+./yescrypt_crack.bin -h hashes.txt -w wordlist.txt -o cracked.txt -t 16 -s 10
 
-cat wordlist | ./yescrypt_cracker.bin -h hashes.txt
+cat wordlist | ./yescrypt_crack.bin -h hashes.txt
 
-./yescrypt_cracker.bin -h hashes.txt -w wordlist.txt -o output.txt`
+./yescrypt_crack.bin -h hashes.txt -w wordlist.txt -o output.txt`
 	fmt.Fprintln(os.Stderr, str)
 }
 

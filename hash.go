@@ -22,7 +22,8 @@ func ReadYescryptHashes(filePath string) ([]YescryptHash, error) {
 	}
 	defer file.Close()
 
-	yescryptRegex := regexp.MustCompile(`^\$y\$[./A-Za-z0-9]+\$[./A-Za-z0-9]{1,86}\$[./A-Za-z0-9]{43}$`)
+	// accept native yescrypt ($y$) and gost-yescrypt ($gy$) hashes
+	yescryptRegex := regexp.MustCompile(`^\$(y|gy)\$[./A-Za-z0-9]+\$[./A-Za-z0-9]{1,86}\$[./A-Za-z0-9]{43}$`)
 
 	var hashes []YescryptHash
 	scanner := bufio.NewScanner(file)
@@ -32,7 +33,7 @@ func ReadYescryptHashes(filePath string) ([]YescryptHash, error) {
 			continue
 		}
 
-		// yescrypt sanity check
+		// yescrypt / gost-yescrypt sanity check
 		if !yescryptRegex.MatchString(line) {
 			continue
 		}
@@ -43,6 +44,17 @@ func ReadYescryptHashes(filePath string) ([]YescryptHash, error) {
 		return nil, err
 	}
 	return hashes, nil
+}
+
+func crackHash(password, fullHash []byte) bool {
+	switch {
+	case bytes.HasPrefix(fullHash, []byte("$y$")):
+		return crackYescrypt(password, fullHash)
+	case bytes.HasPrefix(fullHash, []byte("$gy$")):
+		return crackGostYescrypt(password, fullHash)
+	default:
+		return false
+	}
 }
 
 func crackYescrypt(password, fullHash []byte) bool {

@@ -31,12 +31,14 @@ v0.1.0; 2024-04-16
 v0.2.0; 2025-03-06
 	refactored code
 	github version
+v0.3.1; 2026-08-08
+	add gost-yescrypt support
 */
 
 // main func
 func main() {
 	wordlistFileFlag := flag.String("w", "", "Input file to process (omit -w to read from stdin)")
-	hashFileFlag := flag.String("h", "", "Yescrypt hash file")
+	hashFileFlag := flag.String("h", "", "Yescrypt / gost-yescrypt hash file")
 	outputFileFlag := flag.String("o", "", "Output file to write cracked hashes to (omit -o to print to console)")
 	cycloneFlag := flag.Bool("cyclone", false, "")
 	versionFlag := flag.Bool("version", false, "Program version:")

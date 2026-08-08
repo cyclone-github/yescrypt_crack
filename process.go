@@ -86,7 +86,7 @@ func processPassword(password []byte, hashes []YescryptHash, writerMu *sync.Mute
 	for i := range hashes {
 		if atomic.LoadInt32(&hashes[i].Cracked) == 0 {
 			atomic.AddInt32(totalHashesGenerated, 1)
-			if crackYescrypt(decodedPassword, []byte(hashes[i].Hash)) {
+			if crackHash(decodedPassword, []byte(hashes[i].Hash)) {
 				if atomic.CompareAndSwapInt32(&hashes[i].Cracked, 0, 1) {
 					output := fmt.Sprintf("%s:%s\n", hashes[i].Hash, string(decodedPassword))
 					if writer != nil {
@@ -100,8 +100,8 @@ func processPassword(password []byte, hashes []YescryptHash, writerMu *sync.Mute
 					// exit if all hashes are cracked
 					if isAllHashesCracked(hashes) {
 						closeStopChannel(stopChan)
+						return
 					}
-					return
 				}
 			}
 		}
