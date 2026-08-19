@@ -1,12 +1,9 @@
 [![Readme Card](https://github-readme-stats-fast.vercel.app/api/pin/?username=cyclone-github&repo=yescrypt_crack&theme=gruvbox)](https://github.com/cyclone-github/yescrypt_crack/)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/cyclone-github/yescrypt_crack)](https://goreportcard.com/report/github.com/cyclone-github/yescrypt_crack)
 [![GitHub issues](https://img.shields.io/github/issues/cyclone-github/yescrypt_crack.svg)](https://github.com/cyclone-github/yescrypt_crack/issues)
 [![License](https://img.shields.io/github/license/cyclone-github/yescrypt_crack.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/release/cyclone-github/yescrypt_crack.svg)](https://github.com/cyclone-github/yescrypt_crack/releases)
-<!--
 [![Go Reference](https://pkg.go.dev/badge/github.com/cyclone-github/yescrypt_crack.svg)](https://pkg.go.dev/github.com/cyclone-github/yescrypt_crack)
--->
 
 ```
 ./yescrypt_crack.bin -h hash.txt -w wordlist.txt
@@ -33,13 +30,13 @@ go install github.com/cyclone-github/yescrypt_crack@main
 ```
 
 ### Info:
-I wrote this tool since yescrypt has become the default /etc/shadow hash for many popular linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that support yescrypt. Hashcat currently lacks support for yescrypt, and while John the Ripper supports yescrypt in its bleeding-edge version, getting JtR compiled with yescrypt support can be challenging for newer users due to the required linux lib "libxcrypt" -- this is especially true for Windows users. 
+I wrote this tool since yescrypt has become the default /etc/shadow hash for many popular linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that supported yescrypt. 
 
 Supports both yescrypt and gost-yescrypt.
 
 Since `yescrypt_crack` is written in pure Go, it easily compiles and runs on just about any OS and architecture such as Intel/ARM, Linux, Windows, Mac.
 
-It is worth noting that JtR is usually faster than `yescrypt_crack`. 
+It is worth noting that JtR can be faster than `yescrypt_crack`, so YMMV.
 
 ### Example hash:plain:
 ```
@@ -75,13 +72,11 @@ cat wordlist | ./yescrypt_crack.bin -h yescrypt.txt
 ### Changelog:
 - https://github.com/cyclone-github/yescrypt_crack/blob/main/CHANGELOG.md
 
-
 ### Compile from source:
 - If you want the latest features, compiling from source is the best option since the release version may run several revisions behind the source code.
 - This assumes you have Go and Git installed
   - `git clone https://github.com/cyclone-github/yescrypt_crack.git`  # clone repo
   - `cd yescrypt_crack`                                               # enter project directory
-  - `go mod init yescrypt_crack`                                      # initialize Go module (skips if go.mod exists)
   - `go mod tidy`                                              # download dependencies
   - `go build -ldflags="-s -w" .`                              # compile binary in current directory
   - `go install -ldflags="-s -w" .`                            # compile binary and install to $GOPATH
