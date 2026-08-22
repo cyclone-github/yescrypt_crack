@@ -1,53 +1,124 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
+const (
+	statsSampleInterval = time.Second
+	rateEMAAlpha        = 0.15
+	etaEMAAlpha         = 0.10
+)
+
 // monitor status
-func monitorPrintStats(crackedCount, linesProcessed, totalHashesGenerated *int32, stopChan <-chan struct{}, startTime time.Time, totalHashCount int, wg *sync.WaitGroup, interval int) {
-	var ticker *time.Ticker
-	if interval > 0 {
-		ticker = time.NewTicker(time.Duration(interval) * time.Second)
-		defer ticker.Stop()
+func monitorPrintStats(crackedCount *int32, linesProcessed, totalHashesGenerated *uint64, stopChan <-chan struct{}, startTime time.Time, totalHashCount int, totalWordlistLines uint64, wg *sync.WaitGroup, interval int) {
+	defer wg.Done()
+
+	ticker := time.NewTicker(statsSampleInterval)
+	defer ticker.Stop()
+
+	lastSampleTime := startTime
+	lastPrintTime := startTime
+	var lastLines uint64
+	var lastHashes uint64
+	var candidateRateEMA float64
+	var hashRateEMA float64
+	var etaEMA time.Duration
+	var candidateRateReady bool
+	var hashRateReady bool
+	var etaReady bool
+
+	sample := func(now time.Time) {
+		lines := atomic.LoadUint64(linesProcessed)
+		hashes := atomic.LoadUint64(totalHashesGenerated)
+		sampleDuration := now.Sub(lastSampleTime)
+
+		if sampleDuration > 0 {
+			candidateRate := calcSampleRate(lines, lastLines, sampleDuration)
+			hashRate := calcSampleRate(hashes, lastHashes, sampleDuration)
+
+			candidateRateEMA, candidateRateReady = updateRateEMA(candidateRateEMA, candidateRate, candidateRateReady, rateEMAAlpha)
+			hashRateEMA, hashRateReady = updateRateEMA(hashRateEMA, hashRate, hashRateReady, rateEMAAlpha)
+
+			if totalWordlistLines > 0 && candidateRateReady {
+				if rawETA, ok := estimateRemainingDuration(lines, totalWordlistLines, candidateRateEMA); ok {
+					etaEMA, etaReady = updateDurationEMA(etaEMA, rawETA, etaReady, etaEMAAlpha)
+				}
+			}
+		}
+
+		lastLines = lines
+		lastHashes = hashes
+		lastSampleTime = now
+	}
+
+	print := func(now time.Time) {
+		lines := atomic.LoadUint64(linesProcessed)
+		printStats(now.Sub(startTime), int(atomic.LoadInt32(crackedCount)), totalHashCount, lines, totalWordlistLines, hashRateEMA, hashRateReady, etaEMA, etaReady)
 	}
 
 	for {
 		select {
 		case <-stopChan:
-			// print final stats and exit
-			printStats(time.Since(startTime), int(atomic.LoadInt32(crackedCount)), totalHashCount, int(atomic.LoadInt32(linesProcessed)), true, atomic.LoadInt32(totalHashesGenerated))
-			wg.Done()
+			now := time.Now()
+			sample(now)
+			print(now)
 			return
-		case <-func() <-chan time.Time {
-			if ticker != nil {
-				return ticker.C
-			}
-			return nil
-		}():
-			if interval > 0 {
-				printStats(time.Since(startTime), int(atomic.LoadInt32(crackedCount)), totalHashCount, int(atomic.LoadInt32(linesProcessed)), false, atomic.LoadInt32(totalHashesGenerated))
+		case now := <-ticker.C:
+			sample(now)
+			if interval > 0 && now.Sub(lastPrintTime) >= time.Duration(interval)*time.Second {
+				print(now)
+				lastPrintTime = now
 			}
 		}
 	}
 }
 
-// printStats
-func printStats(elapsedTime time.Duration, crackedCount int, totalHashCount, linesProcessed int, exitProgram bool, totalHashesGenerated int32) {
-	hours := int(elapsedTime.Hours())
-	minutes := int(elapsedTime.Minutes()) % 60
-	seconds := int(elapsedTime.Seconds()) % 60
-	hashesPerSecond := float64(atomic.LoadInt32(&totalHashesGenerated)) / elapsedTime.Seconds()
-	log.Printf("Cracked: %d/%d %.2f h/s %02dh:%02dm:%02ds", crackedCount, totalHashCount, hashesPerSecond, hours, minutes, seconds)
-
-	if exitProgram {
-		fmt.Println("")
-		time.Sleep(100 * time.Millisecond)
-		os.Exit(0) // exit only if exitProgram bool
+func calcSampleRate(total, previous uint64, interval time.Duration) float64 {
+	if interval <= 0 || total < previous {
+		return 0
 	}
+	return float64(total-previous) / interval.Seconds()
+}
+
+func updateRateEMA(current, sample float64, initialized bool, alpha float64) (float64, bool) {
+	if !initialized {
+		if sample <= 0 {
+			return current, false
+		}
+		return sample, true
+	}
+	return current + alpha*(sample-current), true
+}
+
+func updateDurationEMA(current, sample time.Duration, initialized bool, alpha float64) (time.Duration, bool) {
+	if !initialized {
+		return sample, true
+	}
+	return time.Duration(float64(current) + alpha*(float64(sample)-float64(current))), true
+}
+
+// printStats
+func printStats(elapsedTime time.Duration, crackedCount int, totalHashCount int, linesProcessed, totalWordlistLines uint64, hashesPerSecond float64, hashRateReady bool, eta time.Duration, etaReady bool) {
+	timeText := formatDuration(elapsedTime)
+
+	// stdin has no known line count, so only elapsed time can be displayed
+	if totalWordlistLines > 0 {
+		switch {
+		case linesProcessed >= totalWordlistLines:
+			timeText += "/00m"
+		case etaReady:
+			timeText += "/" + formatETADuration(eta)
+		default:
+			timeText += "/--"
+		}
+	}
+
+	if !hashRateReady {
+		hashesPerSecond = 0
+	}
+	log.Printf("Cracked: %d/%d %.2f h/s %s", crackedCount, totalHashCount, hashesPerSecond, timeText)
 }

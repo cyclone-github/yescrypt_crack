@@ -1,13 +1,5 @@
 package main
 
-import (
-	"bytes"
-	"crypto/hmac"
-
-	"github.com/openwall/yescrypt-go"
-	"github.com/tarantool/go-gostcrypto/streebog"
-)
-
 var cryptBase64DecodeTable = [...]byte{
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 	64, 64, 64, 64, 64, 64, 64,
@@ -17,6 +9,8 @@ var cryptBase64DecodeTable = [...]byte{
 	38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
 	51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
 }
+
+const cryptBase64Alphabet = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 func cryptBase64Value(c byte) int {
 	if c >= '.' && c <= 'z' {
@@ -29,11 +23,9 @@ func cryptBase64Value(c byte) int {
 // by yescrypt and gost-yescrypt. It is not RFC 4648 base64.
 func decodeCryptBase64(src []byte) []byte {
 	dst := make([]byte, 0, len(src)*3/4)
-
 	for i := 0; i < len(src); {
 		var value uint32
 		var bits uint32
-
 		for ; bits < 24 && i < len(src); bits += 6 {
 			c := cryptBase64Value(src[i])
 			if c > 63 {
@@ -42,73 +34,39 @@ func decodeCryptBase64(src []byte) []byte {
 			i++
 			value |= uint32(c) << bits
 		}
-
 		if bits < 12 {
 			return nil
 		}
-
 		for ; bits >= 8; bits -= 8 {
 			dst = append(dst, byte(value))
 			value >>= 8
 		}
-
 		if value != 0 {
 			return nil
 		}
 	}
+	return dst
+}
 
+func encodeCryptBase64(src []byte) []byte {
+	dst := make([]byte, 0, (len(src)*8+5)/6)
+	for i := 0; i < len(src); {
+		var value uint32
+		bits := 0
+		for bits < 24 && i < len(src) {
+			value |= uint32(src[i]) << bits
+			i++
+			bits += 8
+		}
+		for bits > 0 {
+			dst = append(dst, cryptBase64Alphabet[value&0x3f])
+			value >>= 6
+			bits -= 6
+		}
+	}
 	return dst
 }
 
 func crackGostYescrypt(password, fullHash []byte) bool {
-	if !bytes.HasPrefix(fullHash, []byte("$gy$")) {
-		return false
-	}
-
-	// libxcrypt computes the normal yescrypt result first using the same
-	// parameters and salt. Convert "$gy$..." to "$y$..." for yescrypt-go.
-	yescryptSetting := make([]byte, 0, len(fullHash)-1)
-	yescryptSetting = append(yescryptSetting, '$', 'y', '$')
-	yescryptSetting = append(yescryptSetting, fullHash[4:]...)
-
-	yescryptHash, err := yescrypt.Hash(password, yescryptSetting)
-	if err != nil {
-		return false
-	}
-
-	yescryptDigestPos := bytes.LastIndexByte(yescryptHash, '$')
-	if yescryptDigestPos < 0 {
-		return false
-	}
-	yescryptDigest := decodeCryptBase64(yescryptHash[yescryptDigestPos+1:])
-	if len(yescryptDigest) != 32 {
-		return false
-	}
-
-	// the final '$' separates the gost-yescrypt setting from its digest
-	// libxcrypt intentionally excludes this '$' from the inner HMAC message
-	gostDigestPos := bytes.LastIndexByte(fullHash, '$')
-	if gostDigestPos < 0 {
-		return false
-	}
-	expectedDigest := decodeCryptBase64(fullHash[gostDigestPos+1:])
-	if len(expectedDigest) != 32 {
-		return false
-	}
-
-	// libxcrypt construction:
-	//   hk      = Streebog-256(password)
-	//   interm  = HMAC-Streebog-256(hk, gost setting without trailing '$')
-	//   result  = HMAC-Streebog-256(interm, raw yescrypt 256-bit result)
-	hk := streebog.Sum256(password)
-
-	mac := hmac.New(streebog.New256, hk[:])
-	_, _ = mac.Write(fullHash[:gostDigestPos])
-	interm := mac.Sum(nil)
-
-	mac = hmac.New(streebog.New256, interm)
-	_, _ = mac.Write(yescryptDigest)
-	generatedDigest := mac.Sum(nil)
-
-	return hmac.Equal(expectedDigest, generatedDigest)
+	return crackHash(password, fullHash)
 }

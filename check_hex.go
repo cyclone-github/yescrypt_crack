@@ -43,7 +43,7 @@ func checkForHexBytes(line []byte) ([]byte, []byte, int) {
 			}
 
 			decodedBytes = make([]byte, hex.DecodedLen(len(cleaned)))
-			_, err = hex.Decode(decodedBytes, cleaned)
+			n, err = hex.Decode(decodedBytes, cleaned)
 			if err != nil {
 				return line, line, 1
 			}
