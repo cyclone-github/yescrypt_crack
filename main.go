@@ -25,7 +25,7 @@ Credits:
 yescrypt_crack was written by cyclone in Go
 The yescrypt algorithm was designed by Solar Designer: https://www.openwall.com/yescrypt/
 The CPU yescrypt implementation in yescrypt_cpu.go is adapted from openwall/yescrypt-go: https://github.com/openwall/yescrypt-go
-The GPU SMix/PWX implementation in kernels/yescrypt.cl are adapted from hashcat's yescrypt OpenCL implementation: https://github.com/hashcat/hashcat/blob/master/OpenCL/inc_hash_yescrypt.cl
+The GPU implementation in yescrypt.cl is adapted from hashcat's yescrypt OpenCL implementation: https://github.com/hashcat/hashcat/blob/master/OpenCL/inc_hash_yescrypt.cl
 Streebog-256 is provided by github.com/tarantool/go-gostcrypto/streebog
 See THIRD_PARTY_NOTICES.md for upstream copyright notices and license terms
 

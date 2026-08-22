@@ -4,7 +4,7 @@
  * The yescrypt algorithm follows Solar Designer's public yescrypt design and
  * reference implementation.
  *
- * Portions of the cooperative GPU SMix/PWX implementation are adapted from
+ * The GPU implementation in yescrypt.cl is adapted from
  * hashcat's MIT-licensed yescrypt OpenCL implementation:
  *
  *   https://github.com/hashcat/hashcat/blob/master/OpenCL/inc_hash_yescrypt.cl

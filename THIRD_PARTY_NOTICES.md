@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## hashcat
 
-Portions of the GPU SMix/PWX implementation in kernels/yescrypt.cl are adapted from hashcat's yescrypt OpenCL implementation.
+The GPU implementation in yescrypt.cl is adapted from hashcat's yescrypt OpenCL implementation.
 
 Relevant implementation: https://github.com/hashcat/hashcat/blob/master/OpenCL/inc_hash_yescrypt.cl
 
