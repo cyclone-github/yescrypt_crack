@@ -5,7 +5,7 @@
 [![GitHub release](https://img.shields.io/github/release/cyclone-github/yescrypt_crack.svg)](https://github.com/cyclone-github/yescrypt_crack/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/cyclone-github/yescrypt_crack.svg)](https://pkg.go.dev/github.com/cyclone-github/yescrypt_crack)
 
-### Note: v0.4.0-dev adds beta support for OpenCL GPU acceleration.
+### Note: v0.4.0-dev added beta support for OpenCL GPU acceleration.
 
 ```
 ./yescrypt_crack.bin -h hash.txt -w wordlist.txt
@@ -32,19 +32,14 @@ GPU batch:      1280
 2026/08/20 11:58:26 Cracked: 0/26  7434.64 H/s	04m/1d:20h:21m
 2026/08/20 11:59:26 Cracked: 0/26  7441.04 H/s	05m/1d:13h:26m
 ````
-### Install this dev branch:
-```
-go install github.com/cyclone-github/yescrypt_crack@yescrypt_crack_gpu
-```
 ### Install latest main branch:
 ```
 go install github.com/cyclone-github/yescrypt_crack@main
 ```
-
 ### Info:
-I originally wrote this tool in 2025 since yescrypt had become the default /etc/shadow hash for many popular Linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that supported yescrypt at that time. 
+I originally wrote this tool in 2025 since yescrypt had become the default /etc/shadow hash for many popular Linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that supported yescrypt at that time. Now we have several crackers to choose from which all support yescrypt and gost-yescrypt: JtR, yescrypt_crack, mdxfind, and hashcat. 
 
-`yescrypt_crack` supports OpenCL GPU acceleration for yescrypt and gost-yescrypt. GPU mode is used by default when a supported OpenCL GPU is available, and CPU mode is avaialble by using flag `-cpu`. All R&D has been performed on Debian 12/13 Linux. Cross platform support for Windows has been implemented, but is not guaranteed. For best results, Linux is recommended. Mac is not supported from v0.4.0 onward, but is supported on v0.3.1.
+`yescrypt_crack` supports OpenCL GPU acceleration for yescrypt and gost-yescrypt. GPU mode is used by default when a supported OpenCL GPU is available, and CPU mode is available by using flag `-cpu`. All R&D has been performed on Debian 12/13 Linux. Cross platform support for Windows has been implemented, but is not guaranteed. For best results, Linux is recommended. Mac is not supported from v0.4.0 onward, but is supported on v0.3.1.
 
 ### Example hash:plain:
 ```
