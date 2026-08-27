@@ -7,6 +7,17 @@
 
 ### Note: v0.4.0-dev added beta support for OpenCL GPU acceleration.
 
+### Install latest main branch:
+```
+go install github.com/cyclone-github/yescrypt_crack@main
+```
+
+### Info:
+I originally wrote this tool in 2025 since yescrypt had become the default /etc/shadow hash for many popular Linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that supported yescrypt at that time. Now we have several crackers to choose from which all support yescrypt and gost-yescrypt: JtR, yescrypt_crack, mdxfind, and hashcat. 
+
+`yescrypt_crack` supports OpenCL GPU acceleration for yescrypt and gost-yescrypt. GPU mode is used by default when a supported OpenCL GPU is available, and CPU mode is available by using flag `-cpu`. All R&D has been performed on Debian 12/13 Linux. Cross platform support for Windows 10/11 has been implemented and tested. Mac is not supported from v0.4.0 onward, but is supported on v0.3.1. WSL is neither tested or recommended. For best results, Linux is recommended.
+
+`Debian 13 2x RTX 4090`
 ```
 ./yescrypt_crack.bin -h hash.txt -w wordlist.txt
  -------------------------------------------------- 
@@ -31,15 +42,49 @@ GPU batch:      1280
 2026/08/20 11:57:26 Cracked: 0/26  7416.85 H/s	03m/1d:17h:06m
 2026/08/20 11:58:26 Cracked: 0/26  7434.64 H/s	04m/1d:20h:21m
 2026/08/20 11:59:26 Cracked: 0/26  7441.04 H/s	05m/1d:13h:26m
-````
-### Install latest main branch:
 ```
-go install github.com/cyclone-github/yescrypt_crack@main
+`Windows 11 1x RTX 4060`
 ```
-### Info:
-I originally wrote this tool in 2025 since yescrypt had become the default /etc/shadow hash for many popular Linux distros such as Debian, Ubuntu, RHEL, Fedora, Arch, etc, and due to the very limited hash cracking tools that supported yescrypt at that time. Now we have several crackers to choose from which all support yescrypt and gost-yescrypt: JtR, yescrypt_crack, mdxfind, and hashcat. 
+PS C:\Users\cyclone> yescrypt_crack.exe -h hash.txt -w wordlist.txt
+ --------------------------------------------------
+|            Cyclone's Yescrypt Cracker            |
+| https://github.com/cyclone-github/yescrypt_crack |
+ --------------------------------------------------
 
-`yescrypt_crack` supports OpenCL GPU acceleration for yescrypt and gost-yescrypt. GPU mode is used by default when a supported OpenCL GPU is available, and CPU mode is available by using flag `-cpu`. All R&D has been performed on Debian 12/13 Linux. Cross platform support for Windows has been implemented, but is not guaranteed. For best results, Linux is recommended. Mac is not supported from v0.4.0 onward, but is supported on v0.3.1.
+Hash file:      hash.txt
+Total Hashes:   1
+CPU Threads:    12
+Wordlist:       wordlist.txt
+Backend:        GPU
+GPU selection:  all
+GPU batch:      416
+2026/08/26 15:22:03 Counting wordlist lines...
+2026/08/26 15:22:03 Tuning GPU...
+2026/08/26 15:22:03 OpenCL GPU 0: NVIDIA GeForce RTX 4060, 8.0 GiB VRAM, batch cap 416, self-test passed
+2026/08/26 15:22:03 Working...
+$y$j9T$ss392e/1r/sS364AbKyZU1$Z6lrn5PE2YqIDbgeH590BnPC5fP8BFrkRgOhvo8WKVC:yescrypt_crack
+2026/08/26 15:22:04 Cracked: 1/1 3.00 h/s 00m/--
+2026/08/26 15:22:04 Finished
+```
+`Windows 11 Ryzen 5 5500 -cpu`
+```
+PS C:\Users\cyclone> yescrypt_crack.exe -h hash.txt -w wordlist.txt -cpu
+ --------------------------------------------------
+|            Cyclone's Yescrypt Cracker            |
+| https://github.com/cyclone-github/yescrypt_crack |
+ --------------------------------------------------
+
+Hash file:      hash.txt
+Total Hashes:   1
+CPU Threads:    12
+Wordlist:       wordlist.txt
+Backend:        CPU
+2026/08/26 15:22:49 Counting wordlist lines...
+2026/08/26 15:22:49 Working...
+$y$j9T$ss392e/1r/sS364AbKyZU1$Z6lrn5PE2YqIDbgeH590BnPC5fP8BFrkRgOhvo8WKVC:yescrypt_crack
+2026/08/26 15:22:49 Cracked: 1/1 50.33 h/s 00m/00m
+2026/08/26 15:22:49 Finished
+```
 
 ### Example hash:plain:
 ```
